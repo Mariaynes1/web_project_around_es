@@ -28,3 +28,59 @@ const initialCards = [
 initialCards.forEach(function (card) {
   console.log(card.name);
 });
+
+
+const editButton = document.querySelector(".profile__edit-button");
+const editPopup = document.querySelector("#edit-popup");
+const closeButton = editPopup.querySelector(".popup__close");
+
+const profileTitle = document.querySelector(".profile__title");
+const profileDescription = document.querySelector(".profile__description");
+
+const nameInput = editPopup.querySelector(".popup__input_type_name");
+const descriptionInput = editPopup.querySelector(".popup__input_type_description");
+
+const formElement = editPopup.querySelector("#edit-profile-form");
+
+// Abrir ventana emergente
+function openModal(modal) {
+  modal.classList.add("popup_is-opened");
+}
+
+// Cerrar ventana emergente
+function closeModal(modal) {
+  modal.classList.remove("popup_is-opened");
+}
+
+// Rellenar el formulario con los datos actuales
+function fillProfileForm() {
+  nameInput.value = profileTitle.textContent;
+  descriptionInput.value = profileDescription.textContent;
+}
+
+// Rellenar los campos y abrir la ventana
+function handleOpenEditModal() {
+  fillProfileForm();
+  openModal(editPopup);
+}
+
+// Guardar los cambios del perfil
+function handleProfileFormSubmit(evt) {
+  evt.preventDefault();
+
+  profileTitle.textContent = nameInput.value;
+  profileDescription.textContent = descriptionInput.value;
+
+  closeModal(editPopup);
+}
+
+// Evento para abrir la ventana
+editButton.addEventListener("click", handleOpenEditModal);
+
+// Evento para cerrar con la X
+closeButton.addEventListener("click", function () {
+  closeModal(editPopup);
+});
+
+// Evento para guardar los cambios
+formElement.addEventListener("submit", handleProfileFormSubmit);
