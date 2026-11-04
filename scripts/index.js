@@ -1,4 +1,9 @@
 
+import {
+  enableValidation,
+  resetValidation
+} from "./validate.js";
+
 const initialCards = [
   {
     name: "Valle de Yosemite",
@@ -26,14 +31,17 @@ const initialCards = [
   }
 ];
 
-// Seleccionar el contenedor y la plantilla de tarjetas
+// -------------------------------------
+// ELEMENTOS DEL DOM
+// -------------------------------------
+
 const cardsContainer = document.querySelector(".cards__list");
 
 const cardTemplate = document
   .querySelector("#card-template")
   .content.querySelector(".card");
 
-// Elementos para editar perfil
+// Editar perfil
 const editButton = document.querySelector(".profile__edit-button");
 const editPopup = document.querySelector("#edit-popup");
 const closeButton = editPopup.querySelector(".popup__close");
@@ -48,10 +56,13 @@ const descriptionInput = editPopup.querySelector(
 
 const formElement = editPopup.querySelector("#edit-profile-form");
 
-// Elementos para agregar tarjetas
+// Agregar tarjetas
 const addButton = document.querySelector(".profile__add-button");
 const addCardPopup = document.querySelector("#new-card-popup");
-const addCardCloseButton = addCardPopup.querySelector(".popup__close");
+
+const addCardCloseButton = addCardPopup.querySelector(
+  ".popup__close"
+);
 
 const addCardForm = addCardPopup.querySelector("#new-card-form");
 
@@ -63,23 +74,57 @@ const cardLinkInput = addCardPopup.querySelector(
   ".popup__input_type_url"
 );
 
-// Elementos para ampliar las imágenes
+// Ampliar imágenes
 const imagePopup = document.querySelector("#image-popup");
 const popupImage = imagePopup.querySelector(".popup__image");
 const popupCaption = imagePopup.querySelector(".popup__caption");
-const imageCloseButton = imagePopup.querySelector(".popup__close");
 
-// Abrir ventana emergente
+const imageCloseButton = imagePopup.querySelector(
+  ".popup__close"
+);
+
+// -------------------------------------
+// VENTANAS EMERGENTES
+// -------------------------------------
+
+function handleEscClose(evt) {
+  if (evt.key === "Escape") {
+    const openedPopup = document.querySelector(".popup_is-opened");
+
+    if (openedPopup) {
+      closeModal(openedPopup);
+    }
+  }
+}
+
 function openModal(modal) {
   modal.classList.add("popup_is-opened");
+
+  document.addEventListener("keydown", handleEscClose);
 }
 
-// Cerrar ventana emergente
 function closeModal(modal) {
   modal.classList.remove("popup_is-opened");
+
+  document.removeEventListener("keydown", handleEscClose);
+
+  const form = modal.querySelector(".popup__form");
+
+  if (form) {
+    resetValidation(form);
+  }
 }
 
-// Crear una tarjeta a partir de la plantilla
+function handleOverlayClick(evt) {
+  if (evt.target === evt.currentTarget) {
+    closeModal(evt.currentTarget);
+  }
+}
+
+// -------------------------------------
+// CREAR TARJETAS
+// -------------------------------------
+
 function getCardElement(
   name = "Sin título",
   link = "./images/placeholder.jpg"
@@ -93,21 +138,27 @@ function getCardElement(
   cardImage.src = link;
   cardImage.alt = name;
 
-  // Botón Me gusta
-  const likeButton = cardElement.querySelector(".card__like-button");
+  // Me gusta
+  const likeButton = cardElement.querySelector(
+    ".card__like-button"
+  );
 
   likeButton.addEventListener("click", function () {
-    likeButton.classList.toggle("card__like-button_is-active");
+    likeButton.classList.toggle(
+      "card__like-button_is-active"
+    );
   });
 
-  // Botón Eliminar tarjeta
-  const deleteButton = cardElement.querySelector(".card__delete-button");
+  // Eliminar tarjeta
+  const deleteButton = cardElement.querySelector(
+    ".card__delete-button"
+  );
 
   deleteButton.addEventListener("click", function () {
     cardElement.remove();
   });
 
-  // Abrir la imagen en una ventana emergente
+  // Ampliar imagen
   cardImage.addEventListener("click", function () {
     popupCaption.textContent = name;
     popupImage.src = link;
@@ -119,32 +170,40 @@ function getCardElement(
   return cardElement;
 }
 
-// Agregar una tarjeta al contenedor
 function renderCard(name, link, container) {
   const cardElement = getCardElement(name, link);
+
   container.prepend(cardElement);
 }
 
-// Mostrar las tarjetas iniciales
+// Mostrar tarjetas iniciales
 initialCards.forEach(function (card) {
   renderCard(card.name, card.link, cardsContainer);
 });
 
-// Rellenar el formulario de editar perfil
+// -------------------------------------
+// EDITAR PERFIL
+// -------------------------------------
+
 function fillProfileForm() {
   nameInput.value = profileTitle.textContent;
   descriptionInput.value = profileDescription.textContent;
 }
 
-// Abrir ventana de editar perfil
 function handleOpenEditModal() {
   fillProfileForm();
+
+  resetValidation(formElement);
+
   openModal(editPopup);
 }
 
-// Guardar los cambios del perfil
 function handleProfileFormSubmit(evt) {
   evt.preventDefault();
+
+  if (!formElement.checkValidity()) {
+    return;
+  }
 
   profileTitle.textContent = nameInput.value;
   profileDescription.textContent = descriptionInput.value;
@@ -152,46 +211,64 @@ function handleProfileFormSubmit(evt) {
   closeModal(editPopup);
 }
 
-// Crear una nueva tarjeta
+// -------------------------------------
+// AGREGAR NUEVA TARJETA
+// -------------------------------------
+
 function handleCardFormSubmit(evt) {
   evt.preventDefault();
+
+  if (!addCardForm.checkValidity()) {
+    return;
+  }
 
   const name = cardNameInput.value;
   const link = cardLinkInput.value;
 
   renderCard(name, link, cardsContainer);
 
-  closeModal(addCardPopup);
-
   addCardForm.reset();
+
+  closeModal(addCardPopup);
 }
 
-// Abrir la ventana de editar perfil
+// -------------------------------------
+// EVENTOS
+// -------------------------------------
+
 editButton.addEventListener("click", handleOpenEditModal);
 
-// Cerrar la ventana de editar perfil
 closeButton.addEventListener("click", function () {
   closeModal(editPopup);
 });
 
-// Guardar los cambios del perfil
-formElement.addEventListener("submit", handleProfileFormSubmit);
+formElement.addEventListener(
+  "submit",
+  handleProfileFormSubmit
+);
 
-// Abrir la ventana de agregar tarjeta
 addButton.addEventListener("click", function () {
+  resetValidation(addCardForm);
   openModal(addCardPopup);
 });
 
-// Cerrar la ventana de agregar tarjeta
 addCardCloseButton.addEventListener("click", function () {
   closeModal(addCardPopup);
 });
 
-// Enviar el formulario de nueva tarjeta
-addCardForm.addEventListener("submit", handleCardFormSubmit);
+addCardForm.addEventListener(
+  "submit",
+  handleCardFormSubmit
+);
 
-// Cerrar la ventana de imagen ampliada
 imageCloseButton.addEventListener("click", function () {
   closeModal(imagePopup);
 });
 
+// Cerrar al hacer clic en la superposición
+editPopup.addEventListener("click", handleOverlayClick);
+addCardPopup.addEventListener("click", handleOverlayClick);
+imagePopup.addEventListener("click", handleOverlayClick);
+
+// Activar validación de formularios
+enableValidation();

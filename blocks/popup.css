@@ -1,3 +1,4 @@
+
 .popup {
   font-family: "Inter", Arial, sans-serif;
   align-items: center;
@@ -115,6 +116,55 @@
   left: 0;
   top: calc(100% + 10px);
   margin: 0;
+}
+
+/* ---------------------------------- */
+/* SPRINT 7: VALIDACIÓN DE FORMULARIOS */
+/* ---------------------------------- */
+
+/* Contenedor de cada campo */
+.popup__field {
+  display: block;
+  position: relative;
+  width: 100%;
+  margin-bottom: 20px;
+}
+
+/* Mensaje de error oculto */
+.popup__error {
+  display: none;
+  position: absolute;
+  top: 100%;
+  left: 0;
+  width: 100%;
+  color: #ff0000;
+  font-size: 12px;
+  line-height: 15px;
+}
+
+/* Mostrar mensaje de error */
+.popup__error_visible {
+  display: block;
+}
+
+/* Campo con error */
+.popup__input_type_error {
+  border-bottom: 1px solid #ff0000;
+}
+
+/* Botón desactivado */
+.popup__button_disabled {
+  background-color: #fff;
+  color: #c4c4c4;
+  border: 1px solid #c4c4c4;
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+/* Evitar efecto hover en botones desactivados */
+.popup__button_disabled:hover {
+  background-color: #fff;
+  cursor: not-allowed;
 }
 
 @media screen and (max-width: 544px) {
